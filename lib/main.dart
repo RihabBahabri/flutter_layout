@@ -47,23 +47,6 @@ class MyAppState extends ChangeNotifier {
     ;
     notifyListeners();
   }
-
-  // var favorites = <WordPair>[];
-
-  // void toggleFavorite([WordPair? pair]) {
-  //   // pair = pair ?? current;
-  //   // if (favorites.contains(pair)) {
-  //   //   favorites.remove(pair);
-  //   // } else {
-  //   //   favorites.add(pair);
-  //   // }
-  //   notifyListeners();
-  // }
-
-  // void removeFavorite(WordPair pair) {
-  //   // favorites.remove(pair);
-  //   notifyListeners();
-  // }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -188,10 +171,6 @@ class _HistoryListViewState extends State<HistoryListView> {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
-    var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
 
     appState.historyListKey = _key;
 
@@ -234,21 +213,26 @@ class HistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    var style = theme.textTheme.bodyLarge!.copyWith(
+      color: theme.colorScheme.primary,
+    );
+
     return Wrap(
       children: [
         Text(
           student.name,
-          // style: style.copyWith(fontWeight: FontWeight.w200),
+          style: style.copyWith(fontWeight: FontWeight.bold),
         ),
         const Text(" - "),
         Text(
           student.school,
-          // style: style.copyWith(fontWeight: FontWeight.bold),
+          style: style.copyWith(fontWeight: FontWeight.w100),
         ),
         const Text(" - "),
         Text(
           student.grade,
-          // style: style.copyWith(fontWeight: FontWeight.bold),
+          style: style.copyWith(fontWeight: FontWeight.w100),
         ),
       ],
     );
