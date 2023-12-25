@@ -15,7 +15,8 @@ class MainApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Layout App',
+        title: 'North Gate',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
@@ -81,13 +82,32 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    return Scaffold(body: LayoutBuilder(builder: (context, constraints) {
-      return Column(
-        children: [
-          Expanded(child: mainArea),
-        ],
-      );
-    }));
+    var qrArea = Container(child: Placeholder());
+
+    return Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 64, // Set this height
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset(
+                'assets/logo.png',
+                fit: BoxFit.contain,
+                height: 64,
+              ),
+              Text("Your Title"),
+            ],
+          ),
+        ),
+        body: LayoutBuilder(builder: (context, constraints) {
+          return Row(children: [
+            SizedBox(width: 50),
+            Expanded(flex: 3, child: mainArea),
+            SizedBox(width: 50),
+            Expanded(flex: 2, child: qrArea),
+            SizedBox(width: 50),
+          ]);
+        }));
   }
 }
 
@@ -95,7 +115,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
+    var student = appState.current;
 
     return Center(
       child: Column(
@@ -106,7 +126,7 @@ class MainPage extends StatelessWidget {
             child: HistoryListView(),
           ),
           SizedBox(height: 10),
-          BigCard(student: pair),
+          BigCard(student: student),
           SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -169,7 +189,7 @@ class _HistoryListViewState extends State<HistoryListView> {
       blendMode: BlendMode.dstIn,
       child: AnimatedList(
         key: _key,
-        reverse: true,
+        reverse: false,
         padding: EdgeInsets.only(top: 100),
         initialItemCount: appState.history.length,
         itemBuilder: (context, index, animation) {
