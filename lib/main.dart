@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'student.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -19,7 +21,8 @@ class MainApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 121, 23, 28)),
         ),
         home: MyHomePage(),
       ),
@@ -28,8 +31,8 @@ class MainApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current =
-      Student.fromJson(jsonDecode('{ "name": "Shahad ", "grade": "3rd" }'));
+  var current = Student.fromJson(jsonDecode(
+      '{ "id": "11221133551", "name": "شهد خالد العمودي", "school": "المرحلة الثانوية", "grade": "الصف الثالث", "track": "صحة وحياة (2)" }'));
   var history = <Student>[];
 
   GlobalKey? historyListKey;
@@ -38,8 +41,9 @@ class MyAppState extends ChangeNotifier {
     history.insert(0, current);
     var animatedList = historyListKey?.currentState as AnimatedListState?;
     animatedList?.insertItem(0);
-    current =
-        Student.fromJson(jsonDecode('{ "name": "Raghad ", "grade": "1st" }'));
+    current = Student.fromJson(jsonDecode(
+        '{ "id": "11221133551", "name": "أحمد العمودي", "school": "المرحلة المتوسطة", "grade": "الصف الأول", "track": "" }'));
+
     ;
     notifyListeners();
   }
@@ -75,30 +79,43 @@ class _MyHomePageState extends State<MyHomePage> {
     page = MainPage();
 
     var mainArea = ColoredBox(
-      color: colorScheme.surfaceVariant,
+      color: colorScheme.background,
+      // color: colorScheme.surfaceVariant,
       child: AnimatedSwitcher(
         duration: Duration(milliseconds: 200),
         child: page,
       ),
     );
 
-    var qrArea = Container(child: Placeholder());
+    var qrArea = Container(
+        child: const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Placeholder(),
+      ],
+    ));
+
+    var appBar2 = AppBar(
+      toolbarHeight: 64, // Set this height
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Image.asset(
+            'assets/logo.png',
+            fit: BoxFit.contain,
+            height: 64,
+          ),
+          Image.asset(
+            'assets/gate1.png',
+            fit: BoxFit.contain,
+            height: 32,
+          ),
+        ],
+      ),
+    );
 
     return Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 64, // Set this height
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(
-                'assets/logo.png',
-                fit: BoxFit.contain,
-                height: 64,
-              ),
-              Text("Your Title"),
-            ],
-          ),
-        ),
+        appBar: appBar2,
         body: LayoutBuilder(builder: (context, constraints) {
           return Row(children: [
             SizedBox(width: 50),
@@ -121,25 +138,12 @@ class MainPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 3,
-            child: HistoryListView(),
-          ),
-          SizedBox(height: 10),
+          const SizedBox(height: 50),
           BigCard(student: student),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ElevatedButton(
-              //   onPressed: () {
-              //     // appState.toggleFavorite();
-              //   },
-              //   // icon: Icon(),
-              //   // label: Text('Like'),
-              //   child: Text('prev'),
-              // ),
-              // SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
                   appState.getNext();
@@ -148,7 +152,11 @@ class MainPage extends StatelessWidget {
               ),
             ],
           ),
-          Spacer(flex: 2),
+          const Expanded(
+            flex: 3,
+            child: HistoryListView(),
+          ),
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -173,13 +181,18 @@ class _HistoryListViewState extends State<HistoryListView> {
     colors: [Colors.transparent, Colors.black],
     // ... from the top (transparent) to half (0.5) of the way to the bottom.
     stops: [0.0, 0.5],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
   );
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
+    var theme = Theme.of(context);
+    var style = theme.textTheme.displayMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+
     appState.historyListKey = _key;
 
     return ShaderMask(
@@ -190,10 +203,10 @@ class _HistoryListViewState extends State<HistoryListView> {
       child: AnimatedList(
         key: _key,
         reverse: false,
-        padding: EdgeInsets.only(top: 100),
+        padding: EdgeInsets.only(bottom: 100),
         initialItemCount: appState.history.length,
         itemBuilder: (context, index, animation) {
-          final pair = appState.history[index];
+          final student = appState.history[index];
           return SizeTransition(
             sizeFactor: animation,
             child: Center(
@@ -201,12 +214,43 @@ class _HistoryListViewState extends State<HistoryListView> {
                 onPressed: () {
                   // appState.toggleFavorite(pair);
                 },
-                child: Text(pair.name),
+                child: HistoryItem(student: student),
               ),
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class HistoryItem extends StatelessWidget {
+  const HistoryItem({
+    super.key,
+    required this.student,
+  });
+
+  final Student student;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        Text(
+          student.name,
+          // style: style.copyWith(fontWeight: FontWeight.w200),
+        ),
+        const Text(" - "),
+        Text(
+          student.school,
+          // style: style.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const Text(" - "),
+        Text(
+          student.grade,
+          // style: style.copyWith(fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }
@@ -222,7 +266,7 @@ class BigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
+    var style = theme.textTheme.headlineMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
 
@@ -235,34 +279,26 @@ class BigCard extends StatelessWidget {
           // Make sure that the compound word wraps correctly when the window
           // is too narrow.
           child: MergeSemantics(
-            child: Wrap(
+            child: Column(
               children: [
                 Text(
                   student.name,
-                  style: style.copyWith(fontWeight: FontWeight.w200),
+                  style: style.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  student.school,
+                  style: style,
                 ),
                 Text(
                   student.grade,
-                  style: style.copyWith(fontWeight: FontWeight.bold),
-                )
+                  style: style,
+                ),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-}
-
-class Student {
-  Student({required this.name, required this.grade});
-  final String name;
-  final String grade;
-
-  factory Student.fromJson(Map<String, dynamic> data) {
-    // ! there's a problem with this code (see below)
-    final name = data['name'] as String;
-    final grade = data['grade'] as String;
-    return Student(name: name, grade: grade);
   }
 }
