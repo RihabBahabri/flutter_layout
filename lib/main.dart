@@ -43,16 +43,21 @@ class MainApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = Student.fromJson(jsonDecode(
-      '{ "id": "11221133551", "name": "شهد خالد العمودي", "school": "المرحلة الثانوية", "grade": "الصف الثالث", "track": "صحة وحياة (2)" }'));
+      '{ "id": "", "name": "", "school": "", "grade": "", "track": "" }'));
   var history = <Student>[];
 
   GlobalKey? historyListKey;
 
   void getNext(student) {
-    history.insert(0, current);
-    var animatedList = historyListKey?.currentState as AnimatedListState?;
-    animatedList?.insertItem(0);
-    current = Student.fromJson(jsonDecode(student));
+    var nextStudent = Student.fromJson(jsonDecode(student));
+    var added = history.any((item) => item.id == nextStudent.id);
+
+    if (!added && current.id != nextStudent.id) {
+      history.insert(0, current);
+      var animatedList = historyListKey?.currentState as AnimatedListState?;
+      animatedList?.insertItem(0);
+      current = nextStudent;
+    }
     notifyListeners();
   }
 }
