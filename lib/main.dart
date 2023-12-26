@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +21,14 @@ class MainApp extends StatelessWidget {
       child: MaterialApp(
         title: 'North Gate',
         debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
+        locale: const Locale('ar'),
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(

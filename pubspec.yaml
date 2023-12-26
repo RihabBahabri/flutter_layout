@@ -11,6 +11,9 @@ dependencies:
     sdk: flutter
   provider: ^6.1.1
 
+  flutter_localizations:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -19,5 +22,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/
-  
+
   uses-material-design: true
+
+flutter_intl:
+  enabled: true
