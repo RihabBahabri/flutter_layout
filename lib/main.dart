@@ -134,21 +134,19 @@ class QrWidget extends StatelessWidget {
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        RotatedBox(
-            quarterTurns: 3,
-            child: MobileScanner(
-                controller: MobileScannerController(
-                  facing: CameraFacing.front,
-                ),
-                onDetect: (capture) {
-                  final List<Barcode> barcodes = capture.barcodes;
-                  for (final barcode in barcodes) {
-                    appState.getNext(barcode.rawValue ?? '');
-                    // setState(() {
-                    //   result = barcode.rawValue ?? 'No data in QR';
-                    // });
-                  }
-                })),
+        MobileScanner(
+            controller: MobileScannerController(
+              facing: CameraFacing.front,
+            ),
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                appState.getNext(barcode.rawValue ?? '');
+                // setState(() {
+                //   result = barcode.rawValue ?? 'No data in QR';
+                // });
+              }
+            }),
       ],
     ));
   }
