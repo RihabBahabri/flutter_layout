@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,14 +48,11 @@ class MyAppState extends ChangeNotifier {
 
   GlobalKey? historyListKey;
 
-  void getNext() {
+  void getNext(student) {
     history.insert(0, current);
     var animatedList = historyListKey?.currentState as AnimatedListState?;
     animatedList?.insertItem(0);
-    current = Student.fromJson(jsonDecode(
-        '{ "id": "11221133551", "name": "أحمد العمودي", "school": "المرحلة المتوسطة", "grade": "الصف الأول", "track": "" }'));
-
-    ;
+    current = Student.fromJson(jsonDecode(student));
     notifyListeners();
   }
 }
@@ -67,7 +65,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
     var colorScheme = Theme.of(context).colorScheme;
+
     Widget page;
     page = MainPage();
 
@@ -81,10 +81,23 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     var qrArea = Container(
-        child: const Column(
+        child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Placeholder(),
+        // Placeholder(),
+        MobileScanner(
+            controller: MobileScannerController(
+              facing: CameraFacing.front,
+            ),
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                appState.getNext(barcode.rawValue ?? '');
+                // setState(() {
+                //   result = barcode.rawValue ?? 'No data in QR';
+                // });
+              }
+            }),
       ],
     ));
 
@@ -121,25 +134,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var student = appState.current;
+    //var student = appState.current;
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 50),
-          BigCard(student: student),
+          BigCard(),
           const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  appState.getNext();
+                  appState.getNext(
+                      '{ "id": "11221133551", "name": "أحمد العمودي", "school": "المرحلة المتوسطة", "grade": "الصف الأول", "track": "" }');
                 },
                 child: Text('Next'),
               ),
@@ -249,17 +268,25 @@ class HistoryItem extends StatelessWidget {
   }
 }
 
-class BigCard extends StatelessWidget {
+class BigCard extends StatefulWidget {
   const BigCard({
     Key? key,
-    required this.student,
+    // required this.student,
   }) : super(key: key);
 
-  final Student student;
+  // final Student student;
 
   @override
+  State<BigCard> createState() => _BigCardState();
+}
+
+class _BigCardState extends State<BigCard> {
+  @override
   Widget build(BuildContext context) {
+    final appState = context.watch<MyAppState>();
+    final student = appState.current;
     var theme = Theme.of(context);
+
     var style = theme.textTheme.headlineMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
