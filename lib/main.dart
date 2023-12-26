@@ -43,7 +43,7 @@ class MainApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = Student.fromJson(jsonDecode(
-      '{ "id": "", "name": "", "school": "", "grade": "", "track": "" }'));
+      '{ "id": "", "name": "                  ", "school": "", "grade": "", "track": "" }'));
   var history = <Student>[];
 
   GlobalKey? historyListKey;
@@ -85,41 +85,22 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    var qrArea = Container(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Placeholder(),
-        MobileScanner(
-            controller: MobileScannerController(
-              facing: CameraFacing.front,
-            ),
-            onDetect: (capture) {
-              final List<Barcode> barcodes = capture.barcodes;
-              for (final barcode in barcodes) {
-                appState.getNext(barcode.rawValue ?? '');
-                // setState(() {
-                //   result = barcode.rawValue ?? 'No data in QR';
-                // });
-              }
-            }),
-      ],
-    ));
+    var qrArea = QrWidget(appState: appState);
 
     var appBar2 = AppBar(
-      toolbarHeight: 64, // Set this height
+      toolbarHeight: 256, // Set this height
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Image.asset(
             'assets/logo.png',
             fit: BoxFit.contain,
-            height: 64,
+            height: 128,
           ),
           Image.asset(
             'assets/gate1.png',
             fit: BoxFit.contain,
-            height: 32,
+            height: 64,
           ),
         ],
       ),
@@ -139,6 +120,40 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class QrWidget extends StatelessWidget {
+  const QrWidget({
+    super.key,
+    required this.appState,
+  });
+
+  final MyAppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        RotatedBox(
+            quarterTurns: 3,
+            child: MobileScanner(
+                controller: MobileScannerController(
+                  facing: CameraFacing.front,
+                ),
+                onDetect: (capture) {
+                  final List<Barcode> barcodes = capture.barcodes;
+                  for (final barcode in barcodes) {
+                    appState.getNext(barcode.rawValue ?? '');
+                    // setState(() {
+                    //   result = barcode.rawValue ?? 'No data in QR';
+                    // });
+                  }
+                })),
+      ],
+    ));
+  }
+}
+
 class MainPage extends StatefulWidget {
   @override
   State<MainPage> createState() => _MainPageState();
@@ -150,30 +165,18 @@ class _MainPageState extends State<MainPage> {
     var appState = context.watch<MyAppState>();
     //var student = appState.current;
 
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 50),
+          SizedBox(height: 50),
           BigCard(),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext(
-                      '{ "id": "11221133551", "name": "أحمد العمودي", "school": "المرحلة المتوسطة", "grade": "الصف الأول", "track": "" }');
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-          const Expanded(
+          SizedBox(height: 50),
+          Expanded(
             flex: 3,
             child: HistoryListView(),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -248,7 +251,7 @@ class HistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.bodyLarge!.copyWith(
+    var style = theme.textTheme.displaySmall!.copyWith(
       color: theme.colorScheme.primary,
     );
 
@@ -292,7 +295,7 @@ class _BigCardState extends State<BigCard> {
     final student = appState.current;
     var theme = Theme.of(context);
 
-    var style = theme.textTheme.headlineMedium!.copyWith(
+    var style = theme.textTheme.displayLarge!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
 
