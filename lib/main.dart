@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/l10n.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n.dart';
 
 import 'student.dart';
 
@@ -14,7 +15,7 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
-  ]).then((value) => runApp(MainApp()));
+  ]).then((value) => runApp(const MainApp()));
 
   runApp(const MainApp());
 }
@@ -42,7 +43,7 @@ class MainApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
               seedColor: const Color.fromARGB(255, 121, 23, 28)),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
@@ -70,6 +71,8 @@ class MyAppState extends ChangeNotifier {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -81,13 +84,13 @@ class _MyHomePageState extends State<MyHomePage> {
     var colorScheme = Theme.of(context).colorScheme;
 
     Widget page;
-    page = MainPage();
+    page = const MainPage();
 
     var mainArea = ColoredBox(
       color: colorScheme.background,
       // color: colorScheme.surfaceVariant,
       child: AnimatedSwitcher(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         child: page,
       ),
     );
@@ -137,11 +140,11 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: appBar2,
         body: LayoutBuilder(builder: (context, constraints) {
           return Row(children: [
-            SizedBox(width: 50),
+            const SizedBox(width: 50),
             Expanded(flex: 3, child: mainArea),
-            SizedBox(width: 50),
+            const SizedBox(width: 50),
             Expanded(flex: 2, child: qrArea),
-            SizedBox(width: 200),
+            const SizedBox(width: 200),
           ]);
         }));
   }
@@ -169,9 +172,6 @@ class QrWidget extends StatelessWidget {
               final List<Barcode> barcodes = capture.barcodes;
               for (final barcode in barcodes) {
                 appState.getNext(barcode.rawValue ?? '');
-                // setState(() {
-                //   result = barcode.rawValue ?? 'No data in QR';
-                // });
               }
             }),
       ),
@@ -180,6 +180,8 @@ class QrWidget extends StatelessWidget {
 }
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -187,9 +189,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    // var appState = context.watch<MyAppState>();
-    //var student = appState.current;
-
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -244,7 +243,7 @@ class _HistoryListViewState extends State<HistoryListView> {
       child: AnimatedList(
         key: _key,
         reverse: false,
-        padding: EdgeInsets.only(bottom: 100),
+        padding: const EdgeInsets.only(bottom: 100),
         initialItemCount: appState.history.length,
         itemBuilder: (context, index, animation) {
           final student = appState.history[index];
@@ -304,10 +303,7 @@ class HistoryItem extends StatelessWidget {
 class BigCard extends StatefulWidget {
   const BigCard({
     Key? key,
-    // required this.student,
   }) : super(key: key);
-
-  // final Student student;
 
   @override
   State<BigCard> createState() => _BigCardState();
@@ -329,7 +325,7 @@ class _BigCardState extends State<BigCard> {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: AnimatedSize(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           // Make sure that the compound word wraps correctly when the window
           // is too narrow.
           child: MergeSemantics(
