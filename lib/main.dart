@@ -43,7 +43,7 @@ class MainApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = Student.fromJson(jsonDecode(
-      '{ "id": "", "name": "                  ", "school": "", "grade": "", "track": "" }'));
+      '{ "id": "", "name": "                                    ", "school": "", "grade": "", "track": "" }'));
   var history = <Student>[];
 
   GlobalKey? historyListKey;
@@ -88,20 +88,40 @@ class _MyHomePageState extends State<MyHomePage> {
     var qrArea = QrWidget(appState: appState);
 
     var appBar2 = AppBar(
-      toolbarHeight: 256, // Set this height
+      toolbarHeight: 128, // Set this height
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset(
-            'assets/logo.png',
-            fit: BoxFit.contain,
-            height: 128,
+          // Padding(padding: EdgeInsets.all(1)),
+          const Expanded(
+            flex: 1,
+            child: SizedBox(width: 1),
           ),
-          Image.asset(
-            'assets/gate1.png',
-            fit: BoxFit.contain,
-            height: 64,
+          Expanded(
+            flex: 5,
+            child: Image.asset(
+              'assets/logo.png',
+              fit: BoxFit.contain,
+              height: 128,
+            ),
           ),
+          const Expanded(
+            flex: 15,
+            child: SizedBox(width: 10),
+          ),
+          Expanded(
+            flex: 5,
+            child: Image.asset(
+              'assets/gate1.png',
+              fit: BoxFit.contain,
+              height: 64,
+            ),
+          ),
+          const Expanded(
+            flex: 1,
+            child: SizedBox(width: 10),
+          ),
+          // Padding(padding: EdgeInsets.all(1)),
         ],
       ),
     );
@@ -114,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(flex: 3, child: mainArea),
             SizedBox(width: 50),
             Expanded(flex: 2, child: qrArea),
-            SizedBox(width: 50),
+            SizedBox(width: 200),
           ]);
         }));
   }
@@ -130,11 +150,11 @@ class QrWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        MobileScanner(
+    return SizedBox(
+      height: 500,
+      child: RotatedBox(
+        quarterTurns: 3,
+        child: MobileScanner(
             controller: MobileScannerController(
               facing: CameraFacing.front,
             ),
@@ -147,8 +167,8 @@ class QrWidget extends StatelessWidget {
                 // });
               }
             }),
-      ],
-    ));
+      ),
+    );
   }
 }
 
@@ -160,7 +180,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    // var appState = context.watch<MyAppState>();
     //var student = appState.current;
 
     return const Center(

@@ -14,18 +14,35 @@ class Student {
 
   factory Student.fromJson(Map<String, dynamic> data) {
     // ! there's a problem with this code (see below)
-    final id = data['id'] as String;
-    final name = data['name'] as String;
-    final school = data['school'] as String;
-    final grade = data['grade'] as String;
-    final track = data['track'] as String?;
+    // final id = data['id'] as String;
+    // final name = data['name'] as String;
+    // final school = data['school'] as String;
+    // final grade = data['grade'] as String;
+    // final track = data['track'] as String?;
 
-    return Student(
-      id: id,
-      name: name,
-      school: school,
-      grade: grade,
-      track: track,
-    );
+    if (data
+        case {
+          'id': String id,
+          'name': String name,
+          'school': String school,
+          'grade': String grade,
+          'track': String? track,
+        }) {
+      return Student(
+        id: id,
+        name: name,
+        school: school,
+        grade: grade,
+        track: track,
+      );
+    } else {
+      return Student(
+        id: "",
+        name: "                                    ",
+        school: "",
+        grade: "",
+        track: "",
+      );
+    }
   }
 }
