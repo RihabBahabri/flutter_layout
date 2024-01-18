@@ -57,16 +57,23 @@ class MyAppState extends ChangeNotifier {
   GlobalKey? historyListKey;
 
   void getNext(student) {
-    var nextStudent = Student.fromJson(jsonDecode(student));
-    var added = history.any((item) => item.id == nextStudent.id);
+    try {
+      var studentString = jsonDecode(student);
+      print(studentString);
+      var nextStudent = Student.fromJson(studentString);
 
-    if (!added && current.id != nextStudent.id) {
-      history.insert(0, current);
-      var animatedList = historyListKey?.currentState as AnimatedListState?;
-      animatedList?.insertItem(0);
-      current = nextStudent;
+      var index = history.indexWhere((item) => item.id == nextStudent.id);
+      print(index);
+      if (current.id != nextStudent.id && index == -1) {
+        history.insert(0, current);
+        var animatedList = historyListKey?.currentState as AnimatedListState?;
+        animatedList?.insertItem(0);
+        current = nextStudent;
+      }
+      notifyListeners();
+    } catch (e) {
+      print(e);
     }
-    notifyListeners();
   }
 }
 
@@ -98,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var qrArea = QrWidget(appState: appState);
 
     var appBar2 = AppBar(
-      toolbarHeight: 128, // Set this height
+      toolbarHeight: 64, // Set this height
       title: Row(
         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -112,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Image.asset(
               'assets/logo.png',
               fit: BoxFit.contain,
-              height: 128,
+              height: 64,
             ),
           ),
           const Expanded(
@@ -124,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Image.asset(
               'assets/gate1.png',
               fit: BoxFit.contain,
-              height: 64,
+              height: 32,
             ),
           ),
           const Expanded(
