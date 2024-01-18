@@ -1,13 +1,22 @@
 import 'dart:convert';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/l10n.dart';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n.dart';
 
 import 'student.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]).then((value) => runApp(const MainApp()));
+
   runApp(const MainApp());
 }
 
@@ -34,7 +43,7 @@ class MainApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
               seedColor: const Color.fromARGB(255, 121, 23, 28)),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
@@ -42,24 +51,35 @@ class MainApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = Student.fromJson(jsonDecode(
-      '{ "id": "11221133551", "name": "شهد خالد العمودي", "school": "المرحلة الثانوية", "grade": "الصف الثالث", "track": "صحة وحياة (2)" }'));
+      '{ "id": "", "name": "                                    ", "school": "", "grade": "", "track": "" }'));
   var history = <Student>[];
 
   GlobalKey? historyListKey;
 
-  void getNext() {
-    history.insert(0, current);
-    var animatedList = historyListKey?.currentState as AnimatedListState?;
-    animatedList?.insertItem(0);
-    current = Student.fromJson(jsonDecode(
-        '{ "id": "11221133551", "name": "أحمد العمودي", "school": "المرحلة المتوسطة", "grade": "الصف الأول", "track": "" }'));
+  void getNext(student) {
+    try {
+      var studentString = jsonDecode(student);
+      print(studentString);
+      var nextStudent = Student.fromJson(studentString);
 
-    ;
-    notifyListeners();
+      var index = history.indexWhere((item) => item.id == nextStudent.id);
+      print(index);
+      if (current.id != nextStudent.id && index == -1) {
+        history.insert(0, current);
+        var animatedList = historyListKey?.currentState as AnimatedListState?;
+        animatedList?.insertItem(0);
+        current = nextStudent;
+      }
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -67,42 +87,58 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
     var colorScheme = Theme.of(context).colorScheme;
+
     Widget page;
-    page = MainPage();
+    page = const MainPage();
 
     var mainArea = ColoredBox(
       color: colorScheme.background,
       // color: colorScheme.surfaceVariant,
       child: AnimatedSwitcher(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         child: page,
       ),
     );
 
-    var qrArea = Container(
-        child: const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Placeholder(),
-      ],
-    ));
+    var qrArea = QrWidget(appState: appState);
 
     var appBar2 = AppBar(
       toolbarHeight: 64, // Set this height
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset(
-            'assets/logo.png',
-            fit: BoxFit.contain,
-            height: 64,
+          // Padding(padding: EdgeInsets.all(1)),
+          const Expanded(
+            flex: 1,
+            child: SizedBox(width: 1),
           ),
-          Image.asset(
-            'assets/gate1.png',
-            fit: BoxFit.contain,
-            height: 32,
+          Expanded(
+            flex: 5,
+            child: Image.asset(
+              'assets/logo.png',
+              fit: BoxFit.contain,
+              height: 64,
+            ),
           ),
+          const Expanded(
+            flex: 15,
+            child: SizedBox(width: 10),
+          ),
+          Expanded(
+            flex: 5,
+            child: Image.asset(
+              'assets/gate1.png',
+              fit: BoxFit.contain,
+              height: 32,
+            ),
+          ),
+          const Expanded(
+            flex: 1,
+            child: SizedBox(width: 10),
+          ),
+          // Padding(padding: EdgeInsets.all(1)),
         ],
       ),
     );
@@ -111,45 +147,67 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: appBar2,
         body: LayoutBuilder(builder: (context, constraints) {
           return Row(children: [
-            SizedBox(width: 50),
+            const SizedBox(width: 50),
             Expanded(flex: 3, child: mainArea),
-            SizedBox(width: 50),
+            const SizedBox(width: 50),
             Expanded(flex: 2, child: qrArea),
-            SizedBox(width: 50),
+            const SizedBox(width: 200),
           ]);
         }));
   }
 }
 
-class MainPage extends StatelessWidget {
+class QrWidget extends StatelessWidget {
+  const QrWidget({
+    super.key,
+    required this.appState,
+  });
+
+  final MyAppState appState;
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var student = appState.current;
+    return SizedBox(
+      height: 500,
+      child: RotatedBox(
+        quarterTurns: 3,
+        child: MobileScanner(
+            controller: MobileScannerController(
+              facing: CameraFacing.front,
+            ),
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                appState.getNext(barcode.rawValue ?? '');
+              }
+            }),
+      ),
+    );
+  }
+}
 
-    return Center(
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 50),
-          BigCard(student: student),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-          const Expanded(
+          SizedBox(height: 50),
+          BigCard(),
+          SizedBox(height: 50),
+          Expanded(
             flex: 3,
             child: HistoryListView(),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -192,7 +250,7 @@ class _HistoryListViewState extends State<HistoryListView> {
       child: AnimatedList(
         key: _key,
         reverse: false,
-        padding: EdgeInsets.only(bottom: 100),
+        padding: const EdgeInsets.only(bottom: 100),
         initialItemCount: appState.history.length,
         itemBuilder: (context, index, animation) {
           final student = appState.history[index];
@@ -224,7 +282,7 @@ class HistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.bodyLarge!.copyWith(
+    var style = theme.textTheme.displaySmall!.copyWith(
       color: theme.colorScheme.primary,
     );
 
@@ -249,18 +307,23 @@ class HistoryItem extends StatelessWidget {
   }
 }
 
-class BigCard extends StatelessWidget {
+class BigCard extends StatefulWidget {
   const BigCard({
     Key? key,
-    required this.student,
   }) : super(key: key);
 
-  final Student student;
+  @override
+  State<BigCard> createState() => _BigCardState();
+}
 
+class _BigCardState extends State<BigCard> {
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<MyAppState>();
+    final student = appState.current;
     var theme = Theme.of(context);
-    var style = theme.textTheme.headlineMedium!.copyWith(
+
+    var style = theme.textTheme.displayLarge!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
 
@@ -269,7 +332,7 @@ class BigCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: AnimatedSize(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           // Make sure that the compound word wraps correctly when the window
           // is too narrow.
           child: MergeSemantics(
