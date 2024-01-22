@@ -147,11 +147,11 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: appBar2,
         body: LayoutBuilder(builder: (context, constraints) {
           return Row(children: [
-            const SizedBox(width: 50),
+            const SizedBox(width: 25),
             Expanded(flex: 3, child: mainArea),
-            const SizedBox(width: 50),
+            const SizedBox(width: 25),
             Expanded(flex: 2, child: qrArea),
-            const SizedBox(width: 200),
+            const SizedBox(width: 100),
           ]);
         }));
   }
@@ -168,7 +168,7 @@ class QrWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 500,
+      height: 250,
       child: RotatedBox(
         quarterTurns: 3,
         child: MobileScanner(
@@ -282,7 +282,7 @@ class HistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.displaySmall!.copyWith(
+    var style = theme.textTheme.headlineSmall!.copyWith(
       color: theme.colorScheme.primary,
     );
 
@@ -292,12 +292,12 @@ class HistoryItem extends StatelessWidget {
           student.name,
           style: style.copyWith(fontWeight: FontWeight.bold),
         ),
-        const Text(" - "),
+        const Text("   "),
         Text(
           student.school,
           style: style.copyWith(fontWeight: FontWeight.w100),
         ),
-        const Text(" - "),
+        const Text("   "),
         Text(
           student.grade,
           style: style.copyWith(fontWeight: FontWeight.w100),
@@ -323,7 +323,7 @@ class _BigCardState extends State<BigCard> {
     final student = appState.current;
     var theme = Theme.of(context);
 
-    var style = theme.textTheme.displayLarge!.copyWith(
+    var style = theme.textTheme.displaySmall!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
 
